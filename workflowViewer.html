@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>n8n Deliverables</title>
+</head>
+<body>
+    <div class="header">
+        <h1>n8n Deliverables by Ben</h1>
+    </div>
+    
+    <div class="deliverable-block">
+        <h1>Deliverable 1</h1>
+        <h2>Simple Automation</h2>
+        <n8n-demo id="demo1"></n8n-demo>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 2</h1>
+        <h2>Simple Automation w/LLM</h2>
+        <n8n-demo id="demo2"></n8n-demo>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 3</h1>
+        <h2>Automation w/RAG</h2>
+        <n8n-demo id="demo3"></n8n-demo>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 4</h1>
+        <h2>Telegram Automation</h2>
+        <n8n-demo id="demo4"></n8n-demo>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 5</h1>
+        <h2>Error Handling</h2>
+        <n8n-demo id="demo5"></n8n-demo>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 6</h1>
+        <h2>MCP Integration</h2>
+        <n8n-demo id="demo6"></n8n-demo>
+    </div>
+
+    <!-- Required scripts (load at end of body) -->
+    <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.0.0/webcomponents-loader.js"></script>
+    <script src="https://www.unpkg.com/lit@2.0.0-rc.2/polyfill-support.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@n8n_io/n8n-demo-component/n8n-demo.bundled.js"></script>
+    
+    <script>
+        // Wait for web components to be ready
+        window.addEventListener('WebComponentsReady', function() {
+            loadAllWorkflows();
+        });
+        
+        // Fallback if WebComponentsReady doesn't fire
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadAllWorkflows, 1000);
+        });
+        
+        async function loadAllWorkflows() {
+            const workflows = [
+                { id: 'demo1', file: 'basic.json' },
+                { id: 'demo2', file: 'basic_llm.json' },
+                { id: 'demo3', file: 'rag.json' },
+                { id: 'demo4', file: 'telegram.json' },
+                { id: 'demo5', file: 'error-handling.json' },
+                { id: 'demo6', file: 'mcp.json' }
+            ];
+            
+            for (const workflow of workflows) {
+                try {
+                    const response = await fetch(workflow.file);
+                    const data = await response.json();
+                    const element = document.getElementById(workflow.id);
+                    
+                    if (element) {
+                        // Set workflow attribute as stringified JSON
+                        element.setAttribute('workflow', JSON.stringify(data));
+                    }
+                } catch (error) {
+                    console.error(`Failed to load ${workflow.file}:`, error);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

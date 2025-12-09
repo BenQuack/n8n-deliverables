@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>n8n Deliverables Demo</title>
+</head>
+<body>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 1</h1>
+        <h2>Simple automation</h2>
+        <n8n-demo workflow=''></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p>Simple workflow that uses the google api to update a google sheet and return all rows.</p>
+                <p>There is not much to write about this as it is triggered by another workflow, 
+                    calls the google api to write the name given by the parent workflow and then adds
+                    that name to the sheet along with a timestamp. Finally it retrieves all rows from the sheet
+                    and returns them to the parent workflow.    
+                </p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p>There were some challenges with setting up this workflow as it was my first
+                    time using the google cloud console and n8n so there was definetly a learning curve
+                    to get started. Once I got familiarized with the google dashboard I didn't have any issues,
+                    but the first two to three times I had to setup the credentials I had to rewatch the tutorial.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="deliverable-block">
+        <h1>Deliverable 2</h1>
+        <h2>Simple Automation w/LLM</h2>
+        <n8n-demo workflow=""></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p>
+                    This workflow is very very similar to the deliverable shown above with one difference,
+                    instead of updating the google sheet with just a name, it now updates the sheet with 
+                    a name, the origin of that name provided by chatgpt, and a timestamp.
+                </p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p>
+                    The learning curve was much gentler for this workflow as n8n is a tool that is designed to 
+                    work with AI agents calling LLMs so while setting up an openAI account was new, it was a lot
+                    simpler than setting up the google cloud console. 
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Break time!</h1>
+        <h2>Interact with simple deliverables</h2>
+        <input type="text" id="userInput" placeholder="Enter your name"/>
+        
+        <div class="columns">
+            <div class="column" id="d1-results">
+                <button onclick="callSimpleWorkFlows('basic')">Run deliverable #1</button>
+                <h3>Response from deliverable #1:</h3>
+                
+            </div>
+            <div class="column" id="d2-results">
+                <button onclick="callSimpleWorkFlows('basic_llm')">Run deliverable #2</button>
+                <h3>Response from deliverable #2:</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Deliverable 3</h1>
+        <h2>Automation w/RAG</h2>
+        <n8n-demo workflow=""></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p></p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="deliverable-block">
+        <h1>Deliverable 4</h1>
+        <h2>Telegram Automation</h2>
+        <n8n-demo workflow=""></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p></p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="deliverable-block">
+        <h1>Deliverable 5</h1>
+        <h2>Error Handling</h2>
+        <n8n-demo workflow=""></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p></p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="deliverable-block">
+        <h1>Deliverable 6</h1>
+        <h2>MCP Integration</h2>
+        <n8n-demo workflow=""></n8n-demo>
+        <div class="columns">
+            <div class="column">
+                <h3>description</h3>
+                <p></p>
+            </div>
+            <div class="column">
+                <h3>challenges</h3>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="deliverable-block">
+        <h1>Deliverable 7</h1>
+        <h2>Optimization Strategies</h2>
+        <n8n-demo workflow=""></n8n-demo>
+    </div>
+
+    <script src="scripts.js"></script>
+    
+
+    <!-- Required scripts (load at end of body) -->
+    <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.0.0/webcomponents-loader.js"></script>
+    <script src="https://www.unpkg.com/lit@2.0.0-rc.2/polyfill-support.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@n8n_io/n8n-demo-component/n8n-demo.bundled.js"></script>
+</body>
+</html>
