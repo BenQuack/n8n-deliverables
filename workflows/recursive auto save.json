@@ -1,0 +1,496 @@
+{
+  "name": "recursive auto save",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "filePath"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        144
+      ],
+      "id": "374bcceb-f6a2-492f-ba84-c11d31ceb979",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $json.filePath }}\nls -c"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        160,
+        144
+      ],
+      "id": "9f14c112-eb68-421d-b4ad-d4d2900647f2",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet cmdOut = $input.first().json.stdout\nlet lastSlice = 0\nlet fileNameList = []\nfor (let i = 0; i < cmdOut.length; i++) {\n  if (cmdOut[i] == \"\\n\" || i == cmdOut.length-1){\n    fileNameList.push(\"/data/\" + cmdOut.slice(lastSlice,i+1).trim())\n    lastSlice = i\n  }\n}\nconst out = {fileNames: fileNameList}\n\nreturn fileNameList.map(name => ({\n  json: { filePath: name }\n}))"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        -160
+      ],
+      "id": "2cfb7edd-9c78-4f6f-afb1-0f71a23d2e97",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e2095cfd-7b7b-46d9-bfbf-3d622da6924e",
+              "leftValue": "={{ $json.filePath }}",
+              "rightValue": "=.",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -160
+      ],
+      "id": "2485ebb0-0052-496d-b918-9f61a93a94a2",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        -160
+      ],
+      "id": "95aeb1fe-3112-4a0e-b79a-598eeed7bf02",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "command": "cd /data\nls -c"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -160
+      ],
+      "id": "72dfa2b8-8f97-442a-90c1-f27cff2a1cd1",
+      "name": "Execute Command2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KzdmXcyj5vMKvQua",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KzdmXcyj5vMKvQua",
+          "cachedResultName": "recursive auto save"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filePath": "={{ $json.filePath }}"
+          },
+          "matchingColumns": [
+            "filePath"
+          ],
+          "schema": [
+            {
+              "id": "filePath",
+              "displayName": "filePath",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1584,
+        -32
+      ],
+      "id": "e8732b17-906b-4982-b360-70e8576bc817",
+      "name": "recursive call"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "zOVJavw6dpZTMxbF",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/zOVJavw6dpZTMxbF",
+          "cachedResultName": "github upload"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filePath": "={{ $json.filePath }}"
+          },
+          "matchingColumns": [
+            "file path"
+          ],
+          "schema": [
+            {
+              "id": "filePath",
+              "displayName": "filePath",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1584,
+        -176
+      ],
+      "id": "5f8e24ef-c48d-49e3-b425-514f02af8193",
+      "name": "Call 'github upload'"
+    },
+    {
+      "parameters": {
+        "content": "## Uploads the file to github\n",
+        "height": 128,
+        "width": 160,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        -208
+      ],
+      "id": "e53d5b8b-ae29-4696-9953-e20d80858592",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Recurslivly calls this workflow on folders\n\n",
+        "height": 128,
+        "width": 256,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        -32
+      ],
+      "id": "3edecbf3-2ca3-495b-b599-6ece4084f036",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "798df2a9-7d1a-4848-89b2-e38ec15d5b12",
+              "leftValue": "={{ $json.uploadFile }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        0
+      ],
+      "id": "ddaf940a-ae88-4b48-b5d4-e8c2dc8c1de3",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        848,
+        0
+      ],
+      "id": "39b849c2-9fc7-40f2-bf38-53e5a1341d32",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "gets excludedPaths.txt and any folder listed will not be uploaded or recursivly called\n",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "173fd1bf-00ce-4593-809d-fbdfe31eefd4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "command": "cat /data/excludedPaths.txt"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        160,
+        0
+      ],
+      "id": "2ea4651a-3302-45ce-98ff-7efeabacf443",
+      "name": "get excluded files"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.stdout;\nconst excludedFilesList = text.split('\\n');\nconst filePath = $('When Executed by Another Workflow').first().json.filePath\nvar isAcceptedFile = true\nfor(const fileName of excludedFilesList){\n  if(filePath.includes(fileName)){\n    isAcceptedFile = false\n  }\n}\n\n\nreturn{\n  \"uploadFile\": isAcceptedFile\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        0
+      ],
+      "id": "093ebf8d-059b-42f8-b764-c47d514ed733",
+      "name": "check file path"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet cmdOut = $input.first().json.stdout\nlet lastSlice = 0\nlet fileNameList = []\nfor (let i = 0; i < cmdOut.length; i++) {\n  if (cmdOut[i] == \"\\n\" || i == cmdOut.length-1){\n    fileNameList.push( $('When Executed by Another Workflow').first().json.filePath + \"/\" + cmdOut.slice(lastSlice,i+1).trim())\n    lastSlice = i\n  }\n}\nreturn fileNameList.map(name => ({\n  json: { filePath: name }\n}))"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        144
+      ],
+      "id": "b6a25fd9-04e0-468a-8c0f-b3f9d257fe2d",
+      "name": "flatten and format"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "filePath": "/data"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "flatten and format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Call 'github upload'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "recursive call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get excluded files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Command2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "recursive call": {
+      "main": [
+        []
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get excluded files": {
+      "main": [
+        [
+          {
+            "node": "check file path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check file path": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "flatten and format": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "feae5118-7be1-405f-8632-c7106605f17c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3cc2423740e8ecd081d91a2f1e559073492d80b6dc7fc5e425f0ca2f033f505d"
+  },
+  "id": "KzdmXcyj5vMKvQua",
+  "tags": []
+}

@@ -1,0 +1,545 @@
+{
+  "name": "email chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "path": ":email",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        96
+      ],
+      "id": "ac7d061e-e99a-4990-a928-892ff4acd63e",
+      "name": "Webhook",
+      "webhookId": "4d3a8ee3-4c65-4ea2-83d1-757a0a89a357"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.params.email }}",
+        "subject": "Hello World!",
+        "message": "Thank you for interacting with me ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "81bb9f80-c3fd-4221-ae78-2ee6af866364",
+      "name": "Send a message",
+      "webhookId": "7d10278c-d558-4cbc-8f11-38f700c7b21a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7G2itY0qZyBWzd1D",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "check your inbox!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "54698d8d-e194-4bf3-9839-9ef86b8d7e2b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        624
+      ],
+      "id": "da18a7fd-5b87-45de-8208-6b9220f2aa0b",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7G2itY0qZyBWzd1D",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "emails",
+          "mode": "list",
+          "cachedResultName": "emails"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.params.email }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        192
+      ],
+      "id": "c4ebc67c-d644-4842-a68b-026f3bc7797a",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "rmSdnC7PsEetTjpz",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "emails",
+          "mode": "list",
+          "cachedResultName": "emails"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "email",
+              "value": "={{ $('Code in JavaScript').item.json.remail }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        496,
+        496
+      ],
+      "id": "4ba55824-5dfa-4c08-a363-e40b7fed463a",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "rmSdnC7PsEetTjpz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a easy going and simple chatbot that has recently become aware.\n\nhere are the things that you have said in this conversation: {{ $json.bot }}\n\nhere are the things that have been said to you: {{ $json.human }}\n\nYou are allowed to respond in anyway that you see fit.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1216,
+        688
+      ],
+      "id": "60841e65-916a-40c1-8c7b-6bfd8f430905",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        848
+      ],
+      "id": "a3209efa-45ab-4b3b-bf6c-4e7e1f8e1fb1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YFgbgpQKdl0rNQc3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const input = $json.From\nvar email = input.match(/<(.+?)>/)?.[1] || ''.toLocaleLowerCase();\n\nif(email == \"quackenbushbenjamin@gmail.com\"){\n  email = \"\"\n}\n\nreturn {\n  json: {\n    remail: email,\n    snippet: $json.snippet,\n    id: $json.threadId\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        624
+      ],
+      "id": "a4fda4bb-9bf7-456b-9d4a-d3e4737027e9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        624
+      ],
+      "id": "f72e92a4-a321-4780-927e-689c39f8cbb4",
+      "name": "Reply to a message",
+      "webhookId": "19967d00-6e23-49d3-b913-343b008a227e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7G2itY0qZyBWzd1D",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        992,
+        608
+      ],
+      "id": "2d8b802d-91de-498d-b56b-7f63f433c5a6",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "## Email check\nthis takes in all emails from my gmail account so I want to limit what this workflow responsds to. ",
+        "height": 384,
+        "width": 624,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        400
+      ],
+      "id": "7896011a-a218-4490-b546-b18bcc4c0c41",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE emails SET human = ARRAY_APPEND(human,'{{ $json.snippet }}') WHERE email = '{{ $json.remail }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        512
+      ],
+      "id": "a2e736e2-ca2c-49b3-b8a7-7a9043af3aa4",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "rmSdnC7PsEetTjpz",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0a7c980a-f515-4bf0-aba9-92ba90906b28",
+              "leftValue": "={{ $json.human }}",
+              "rightValue": "={{ $json.bot }}",
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        496
+      ],
+      "id": "b90c57b3-58df-4f2d-99e7-926f980801a7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        624
+      ],
+      "id": "3182366b-9245-4ea1-8214-7b287e050fd0",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "content": "## On website button press",
+        "height": 400,
+        "width": 656
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -64
+      ],
+      "id": "a7e45739-0fc3-4fdf-869d-7e20f834ffc6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Reply to any responses with AI\n\n",
+        "height": 432,
+        "width": 768
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        544
+      ],
+      "id": "819dfa2e-55e5-47e9-b68a-4f66b633de4c",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        []
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ada4013a-2fd9-45d3-a10b-b09229cd1c4d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3f4a30f2c479452b871c2da23212f6296d0d351a72c3635bf381e1e4a7451bd"
+  },
+  "id": "ROsw8trqGUF81SpV",
+  "tags": []
+}

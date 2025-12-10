@@ -1,0 +1,282 @@
+{
+  "name": "github upload",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "filePath"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "445f4f88-44d4-429f-a5c6-f0141d400bd5",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "BenQuack",
+          "mode": "list",
+          "cachedResultName": "BenQuack",
+          "cachedResultUrl": "https://github.com/BenQuack"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "backup",
+          "mode": "list",
+          "cachedResultName": "backup",
+          "cachedResultUrl": "https://github.com/BenQuack/backup"
+        },
+        "filePath": "={{ $json.filePath }}",
+        "fileContent": "={{ $json.output }}",
+        "commitMessage": "automated upload"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        -240
+      ],
+      "id": "8d69229c-cecc-470b-869a-a4e34bd30ee8",
+      "name": "Edit a file",
+      "webhookId": "4ee7d7b0-cf42-4ea4-a770-0d509eba2f54",
+      "credentials": {
+        "githubApi": {
+          "id": "gYYzzJrvWemNm4Ap",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "=cat  {{ $json['filePath'] }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -48
+      ],
+      "id": "f600a10f-9fe5-4dc7-a09f-e75952c2f9fc",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "BenQuack",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "backup",
+          "mode": "list",
+          "cachedResultName": "backup",
+          "cachedResultUrl": "https://github.com/BenQuack/backup"
+        },
+        "filePath": "={{ $json.filePath }}",
+        "fileContent": "=",
+        "commitMessage": "automated upload"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        -64
+      ],
+      "id": "59df4708-8828-4bea-8f71-03c3df9a1621",
+      "name": "Create a file",
+      "webhookId": "be0ce1ab-9789-4f8b-8284-83bba3f6238e",
+      "credentials": {
+        "githubApi": {
+          "id": "gYYzzJrvWemNm4Ap",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        -64
+      ],
+      "id": "72e62bd1-45a0-4765-9194-77342005388c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -224
+      ],
+      "id": "fb8e6e8c-f7b5-4f08-8f68-c00a4f6f573a",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "content": "## Try and edit the file will fail if the file does not exist",
+        "height": 224,
+        "width": 560,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -304
+      ],
+      "id": "1bd94fd9-551a-42a5-b758-e2b2c79a9fd5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Creates a new file will only excute if the edit operation fails\n\n",
+        "height": 240,
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -144
+      ],
+      "id": "c464d7cc-38e4-4a08-892a-af039ffcaa16",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst path = $('When Executed by Another Workflow').first().json.filePath\nconst formattedPath = path.split(\"/data/\")[1]\n\nreturn {\n  \"filePath\":formattedPath,\n  \"output\":$input.first().json.stdout\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        -48
+      ],
+      "id": "21aa047c-f21e-4a31-bebe-c9e4f073a2b9",
+      "name": "Remove \"/data/\""
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "filePath": "/data/random/calc.py"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Remove \"/data/\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a file": {
+      "main": [
+        []
+      ]
+    },
+    "Edit a file": {
+      "main": [
+        [],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove \"/data/\"": {
+      "main": [
+        [
+          {
+            "node": "Edit a file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "92bf168e-752d-4e41-9045-47a420ebfabd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3cc2423740e8ecd081d91a2f1e559073492d80b6dc7fc5e425f0ca2f033f505d"
+  },
+  "id": "zOVJavw6dpZTMxbF",
+  "tags": []
+}

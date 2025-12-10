@@ -1,0 +1,328 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #00563f 0%, #046a38 100%);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+/* Fade-in animation - smoother for index */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scale-in animation - gentler for index */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Slide-in from left - smoother */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide-in from right - smoother */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.deliverable-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 5% auto;
+    padding: 3rem;
+    max-width: 1200px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.deliverable-block:nth-child(even) {
+    animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.deliverable-block h1 {
+    font-size: 3em;
+    margin: 0.5em 0;
+    color: #00563f;
+    animation: scaleIn 0.6s ease-out 0.3s both;
+}
+
+.deliverable-block h2 {
+    font-size: 2em;
+    margin: 0.3em 0 1em 0;
+    color: #046a38;
+    animation: fadeIn 0.6s ease-out 0.4s both;
+}
+
+.deliverable-block h3 {
+    color: #00563f;
+    margin-bottom: 0.5em;
+}
+
+.deliverable-block n8n-demo {
+    width: 90%;
+    height: 600px;
+    margin: 2rem 0;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.8s ease-out 0.5s both;
+}
+
+.column {
+    font-size: 1.1rem;
+    width: 45%;
+    border: none;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-radius: 15px;
+    margin: 1em 0.5em;
+    padding: 1.5em;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.column:first-child {
+    animation: slideInLeft 0.8s ease-out 0.6s both;
+}
+
+.column:last-child {
+    animation: slideInRight 0.8s ease-out 0.6s both;
+}
+
+.column:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: 1em 0;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.columns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.item-box {
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-out;
+}
+
+#userInput {
+    margin: 20px 0;
+    padding: 15px 20px;
+    font-size: 18px;
+    width: 100%;
+    max-width: 400px;
+    border: 2px solid #00563f;
+    border-radius: 30px;
+    outline: none;
+    transition: all 0.3s ease;
+    animation: scaleIn 0.6s ease-out 0.5s both;
+}
+
+#userInput:focus {
+    border-color: #046a38;
+    box-shadow: 0 0 20px rgba(0, 86, 63, 0.4);
+    transform: scale(1.02);
+}
+
+button {
+    background: linear-gradient(135deg, #00563f 0%, #046a38 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 86, 63, 0.4);
+    animation: scaleIn 0.6s ease-out 0.6s both;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 86, 63, 0.6);
+}
+
+button:active {
+    transform: translateY(-1px);
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 5% auto;
+    padding: 3rem;
+    max-width: 1000px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease-out;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    margin: 2em 0;
+    color: white;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1s ease-out;
+}
+
+.button-container a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav {
+    width: 220px;
+    height: 120px;
+    border: none;
+    background: linear-gradient(135deg, #00563f 0%, #046a38 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: scaleIn 0.8s ease-out both;
+}
+
+.row:nth-child(1) .nav {
+    animation-delay: 0.3s;
+}
+
+.row:nth-child(2) .nav:nth-child(1) {
+    animation-delay: 0.5s;
+}
+
+.row:nth-child(2) .nav:nth-child(2) {
+    animation-delay: 0.6s;
+}
+
+.row:nth-child(2) .nav:nth-child(3) {
+    animation-delay: 0.7s;
+}
+
+.row:nth-child(3) .nav:nth-child(1) {
+    animation-delay: 0.8s;
+}
+
+.row:nth-child(3) .nav:nth-child(2) {
+    animation-delay: 0.9s;
+}
+
+.row:nth-child(3) .nav:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.nav:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(0, 86, 63, 0.5);
+}
+
+.nav:active {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* Results containers */
+#d1-results, #d2-results {
+    animation: slideInLeft 0.8s ease-out 0.7s both;
+}
+
+#d2-results {
+    animation: slideInRight 0.8s ease-out 0.7s both;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .deliverable-block {
+        padding: 2rem 1rem;
+        margin: 5% 1rem;
+    }
+    
+    .columns {
+        flex-direction: column;
+    }
+    
+    .column {
+        width: 100%;
+    }
+    
+    .row {
+        flex-direction: column;
+    }
+    
+    .nav {
+        width: 100%;
+        margin: 0.5em 0;
+    }
+    
+    .deliverable-block h1 {
+        font-size: 2em;
+    }
+    
+    .deliverable-block h2 {
+        font-size: 1.5em;
+    }
+}

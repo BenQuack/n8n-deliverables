@@ -1,0 +1,734 @@
+{
+  "name": "Final Project - Webscraper + Insert to Vector Store",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "articles",
+              "cssSelector": "ul > li > article > a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -544,
+        736
+      ],
+      "id": "2d6a1bd4-e311-4757-8676-b2bc058054df",
+      "name": "HTML1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.uvm.edu/it/kb/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1744,
+        400
+      ],
+      "id": "4aabe553-ee2e-4817-a77b-24a4ec5ff52f",
+      "name": "Get UVM KB"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "topics",
+              "cssSelector": "ul > li > div > a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -1504,
+        400
+      ],
+      "id": "33936725-2658-4bc6-9eee-837d25baeacb",
+      "name": "Extract Help Topics"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.topic }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -784,
+        736
+      ],
+      "id": "27c3e0c6-eb9b-4ae9-9393-3bdc909c1918",
+      "name": "Get Articles"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items[0].json.articles.map(function(article) {\n  return {\n  json: {article: article}\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        736
+      ],
+      "id": "c01f9f8d-93ad-46a5-b00d-de357da97106",
+      "name": "Convert Into Individual Articles"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items[0].json.topics.map(function(topic) {\n  return {\n  json: {topic: topic}\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1264,
+        400
+      ],
+      "id": "a48efb92-5826-4828-8e48-c07cf5c08041",
+      "name": "Convert Into Individual Topics"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.article }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        736
+      ],
+      "id": "e326b615-1c3c-4c94-a705-bc711915fcf5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a web-scraping agent. Your job is to take in webpage content and pull out helpful information.  The content should be ready to be inputted into a vector database. Helpful information includes article body and other information pertinent to the knowledgebase. Your output should be very simple and only include text from the webpage.\n\nWebpage input: {{ $json.cleaned }}",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -304,
+        144
+      ],
+      "id": "af31cf9a-6ee6-427c-bcfc-0a6133854404",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vUAZ75Md7vic3jaR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "uvm_kb_embeddings_updated",
+          "mode": "list",
+          "cachedResultName": "uvm_kb_embeddings_updated"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        144
+      ],
+      "id": "f138784e-3cad-4ccb-a024-4f5783e795c9",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "leiFELSMsz4QtG5h",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        400
+      ],
+      "id": "8f29de36-5042-4d65-a56b-a1d97cd38abc",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "vUAZ75Md7vic3jaR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        400
+      ],
+      "id": "9e2a5aaa-aeec-47a8-85b2-ad1f99b311de",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "content": "## UVM KB HTML Request\nPulls source code from UVM knowledge base website.",
+        "height": 304,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1808,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "c98b6562-a7ad-43c6-8ad6-2d1d29af14b8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Pull Topics from Page\nPull help topics from the knowledge base main page",
+        "height": 304,
+        "width": 224,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1568,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "deadb2a7-979c-41de-9bf7-63b53cdf6d4a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Split Into Separate Topics\nCode node uses JavaScript to split topics\n",
+        "height": 304,
+        "width": 224,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "38ecbdad-1b9c-442d-95df-9f8238f6e2ae",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Loop over Topics\nIterate over each topic",
+        "height": 240,
+        "width": 224,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1088,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "23b36775-47a3-47a4-b795-5dddd161a083",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Get Articles HTML Request\nGet individual articles source code from within topics via HTML request",
+        "height": 304,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "7f592373-25e4-49b0-a65e-651cabcaa1d8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Pull Articles from Topic\nGet individual articles from within topics via HTML selector",
+        "height": 320,
+        "width": 224,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "6441b1a9-05c7-4cf0-89aa-b74dd972cbcb",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Pull Articles from Topic\nGet individual articles from within topics via HTML selector",
+        "height": 320,
+        "width": 224,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "3fb2773f-db2b-43d8-b9ae-6520232a917a",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Get Article Body HTML Request\nGet article content via HTML request",
+        "height": 288,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "4d2c9773-ca5a-4830-b7c6-906aa217c5ba",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## AI Web Scraper\nPulls content from the UVM Knowledge Base. Scrapes useful information for the vector store.",
+        "height": 256,
+        "width": 352,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "102d9efa-2adf-4afa-92f1-e1ab1a1cbba1",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Input to Supabase Vector Store\nParses and splits content into a vector store to be used with other AI models. TOOLS: OpenAI embeddings - allows text embedding in vector store, Data Loader - Splits text into chunks to add to vector store.",
+        "height": 528,
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "59948e0c-5028-4c74-aba2-d40cd3ded03a",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        144
+      ],
+      "id": "cc296d25-bd28-4ebc-92f8-127e3a257362",
+      "name": "Wait",
+      "webhookId": "ea137628-0250-4f25-a152-921e02ed7960"
+    },
+    {
+      "parameters": {
+        "content": "## Loop over Articles\nIterate over each article",
+        "height": 256,
+        "width": 224,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "77c88626-2788-407e-9de6-454a484117a0",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -784,
+        128
+      ],
+      "id": "d80a501c-835f-4278-89db-8c30209a167b",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1024,
+        400
+      ],
+      "id": "745f5934-01ee-4403-8b3f-82090185550e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let body = item.json.data || \"\";\n  // Remove whitespace, scripts, navigation, etc.\n  body = body.replace(/<script[\\s\\S]*?<\\/script>/gi, \"\");\n  body = body.replace(/<style[\\s\\S]*?<\\/style>/gi, \"\");\n  body = body.replace(/\\s+/g, \" \");\n\n  // OPTION: limit size to avoid overflow\n  body = body.slice(0, 25000);\n\n  item.json.cleaned = body;\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        144
+      ],
+      "id": "3b44357b-ed53-45fd-a11f-9e5aa7ad0005",
+      "name": "Clean Articles"
+    },
+    {
+      "parameters": {
+        "content": "## Clean Articles\nUse javascript to take out unnecessary items from article code",
+        "height": 256,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "2d8ed71d-9203-4674-b1eb-680570f3d3f5",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "## Wait 30 Seconds\nPause briefly to allow only 2 articles to be added a minute to avoid OpenAI's tokens-per-minute rate limits",
+        "height": 288,
+        "width": 224,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "7c535987-8ff3-440c-8b87-2924a49a7ae6",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1968,
+        768
+      ],
+      "id": "8a8a1915-37c5-4dd1-9dce-7cc2e6420aeb",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "ccmjbutera@gmail.com",
+        "subject": "Execution Failed",
+        "message": "Execution failed for UVM KB article upload.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1760,
+        768
+      ],
+      "id": "2474af46-f33a-42e2-b9ea-0e17c31f9a5b",
+      "name": "Send a message",
+      "webhookId": "149d98e7-1dca-4947-94ad-6a558b0537d5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5clBs3Xvh3yijnGA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1968,
+        400
+      ],
+      "id": "77fadd3a-7ca3-42c0-b00b-595ab7ced63f",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "Convert Into Individual Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get UVM KB": {
+      "main": [
+        [
+          {
+            "node": "Extract Help Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Help Topics": {
+      "main": [
+        [
+          {
+            "node": "Convert Into Individual Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Articles": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Into Individual Articles": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Into Individual Topics": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Clean Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Articles": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get UVM KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "11e35b47-c0f0-4819-9af1-d4b208eddfd6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c58d6d3a84d7a3f7c6980fa380bd3b2038332ce4ac347fa81415ad8f7042a76d"
+  },
+  "id": "bzVQVv57XXs4FylK",
+  "tags": []
+}
