@@ -1,0 +1,170 @@
+{
+  "name": "Simple workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"name\": \"string\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "069c8e7b-af93-4f47-961d-d92651709a07",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "content": "## Deliverable 1 \n",
+        "height": 304,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -112
+      ],
+      "id": "efb76c80-1069-48cc-8ed1-d83ace70c223",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw",
+          "mode": "list",
+          "cachedResultName": "simple workflow sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "time": "={{ $now }}",
+            "name": "={{ $json.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        0
+      ],
+      "id": "07391819-2394-42a9-ae37-25b5c1f1b6f2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5aToUTpLfMXtlgQ0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw",
+          "mode": "list",
+          "cachedResultName": "simple workflow sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        0
+      ],
+      "id": "3f8b3fd1-bfae-48d5-b3ff-c7e3d7580c90",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5aToUTpLfMXtlgQ0",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "24400575-ec57-4973-b7e0-7efe1353d32a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3f4a30f2c479452b871c2da23212f6296d0d351a72c3635bf381e1e4a7451bd"
+  },
+  "id": "JD1pZSqKKap1p47N",
+  "tags": []
+}

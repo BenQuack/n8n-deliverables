@@ -1,0 +1,815 @@
+{
+  "name": "Gmail ticket submission",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1376,
+        240
+      ],
+      "id": "6dff0a25-fc0f-474a-87bc-8cfa0c5d87f8",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NUW9YTaFurevAkKK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Email from {{ $json.from.value[0].address }}\nSubject: {{ $json.subject }}\nBody: {{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Context\nYou are a helpful assistant who analyzes tech help tickets submitted in email form and extracts text fields from them. The fields to be extracted are listed and defined below:\n\n# Field Definitions\n**name**: the name of the user sending the email\n**operating_system**: the operating system of the user's device. This should be one of the following options:\n  - Windows\n  - macOS\n  - Android\n  - iOS (iPhone)\n  - Other\n**issue_description**: a description of the issue the user is having\n\n# Field Inference\nIf any field is not explicitly defined in the email, you may use context in the email to infer values for any of the fields. If you don't have enough context to make a solid inference, DO NOT try to give the field a value; instead simply output \"UNKNOWN\" for that field.\n\n# Output\nOutput a single JSON object containing the fields listed and their values. Do not add any additional text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -976,
+        224
+      ],
+      "id": "e5decf4e-5573-447a-863e-1c7e88e9da27",
+      "name": "Fill in missing fields using AI"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        432
+      ],
+      "id": "7304c208-8eb5-4e9a-974c-1d760cac7380",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "OM0xnuhaA6ck7hC3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"name\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n        \"operating_system\": {\n            \"type\": \"string\"\n        },\n        \"issue_description\": {\n            \"type\": \"string\"\n        }\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -816,
+        432
+      ],
+      "id": "b3477d54-909f-4747-903a-bf1d9b8d38c9",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGmail trigger is configured to check for new emails to samzimpfer1@gmail.com currently. change as needed.",
+        "height": 384,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1408,
+        192
+      ],
+      "id": "14848daf-6c4b-4a42-9277-4a877141dadf",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "keyValue": "={{ $('Gmail Trigger').item.json.from.value[0].address.toLowerCase() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        224
+      ],
+      "id": "54885d26-9c0c-418c-91da-363595b0d8c7",
+      "name": "Get user1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "tickets",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "operating_system",
+              "fieldValue": "={{ $json.operating_system }}"
+            },
+            {
+              "fieldId": "issue_description",
+              "fieldValue": "={{ $json.issue_description }}"
+            },
+            {
+              "fieldId": "userid",
+              "fieldValue": "={{ $json.id ?? $('Check if user has an account 2').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        336,
+        464
+      ],
+      "id": "50fa5d59-63c4-4a3f-886b-91241762e49f",
+      "name": "Create ticket",
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "=<p>Hi {{ $('Fill in missing fields using AI').item.json.output.name }},</p>\n\n<p>Thank you for creating a ticket. In order to have you ticket processed by our system you must create an account at https://uvm-ticket-system.vercel.app/signup, then you may close the signin tab and click this button to activate your ticket:</p>\n\n<a href=\"https://n8n.srv1087403.hstgr.cloud/webhook/7258e428-8e50-4111-8ab1-2edbd0148a9a?\nemail={{ $('Gmail Trigger').item.json.from.value[0].address }}\n&operating_system={{ $('Fill in missing fields using AI').item.json.output.operating_system }}\n&issue_description={{ $('Fill in missing fields using AI').item.json.output.issue_description }}\"\n   style=\"display:inline-block;\n          padding:12px 20px;\n          background-color:#7A9A01;\n          color:white;\n          text-decoration:none;\n          border-radius:6px;\n          font-size:16px;\">\n   Activate\n</a>\n\n<p>Best,</p>\n<p>The CATS Ticket System Team</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        384
+      ],
+      "id": "5dba6e17-8288-4e0c-9320-6946407bb874",
+      "name": "Prompt user to create account",
+      "webhookId": "92430618-17b5-4364-9b84-b090010c07ef",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NUW9YTaFurevAkKK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "7258e428-8e50-4111-8ab1-2edbd0148a9a",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        736
+      ],
+      "id": "4439e9c1-b7b8-41f2-9fb1-7dedf75e613d",
+      "name": "Wait for user to create account",
+      "webhookId": "7258e428-8e50-4111-8ab1-2edbd0148a9a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8c4d2fad-53e4-4f2a-9601-1a69e946f40a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        224
+      ],
+      "id": "9db0a0f6-54d9-47ff-b183-e655b7466b09",
+      "name": "Check if user has an account"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "keyValue": "={{ $json.query.email.toLowerCase() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        736
+      ],
+      "id": "6adefae5-ce9c-47e7-82a7-148ef9a919ab",
+      "name": "Get user2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8c4d2fad-53e4-4f2a-9601-1a69e946f40a",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        736
+      ],
+      "id": "bf334063-dc43-4aa5-8f2a-9fdae828b3aa",
+      "name": "Check if user has an account 2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "41c0118f-5e55-4355-8eec-30233d1e820f",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "n8n test",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1184,
+        240
+      ],
+      "id": "874771fa-2992-40d2-acd2-a7274a10b171",
+      "name": "Only respond if subject is \"n8n test\""
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\nCreate ticket if the user already has an account, send them a reply telling them to create an account if not.",
+        "height": 304,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        208
+      ],
+      "id": "81784070-4c4d-4665-b82a-3cc6505b9be2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "This trigger is activated once the user creates an account and clicks a button to activate their ticket",
+        "height": 304,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        592
+      ],
+      "id": "aff908f2-3208-4d6c-bbda-070c7098d4e6",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Ticket submitted successfully. You may close this page.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        656
+      ],
+      "id": "5470bc0f-7657-4675-8885-fcd83db14fd6",
+      "name": "Show success page"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Unable to submit ticket. Please close this page and make sure to create an account through the link in your email before activating your ticket.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        816
+      ],
+      "id": "18013278-1cbc-4de4-a1c1-6226c6985906",
+      "name": "Show error page"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10645edb-474a-457a-8a4c-4ad3b719d785",
+              "name": "operating_system",
+              "value": "={{ $('Fill in missing fields using AI').item.json.output.operating_system }}",
+              "type": "string"
+            },
+            {
+              "id": "77a4f8df-6389-4f06-84f2-7033e7f6de9b",
+              "name": "issue_description",
+              "value": "={{ $('Fill in missing fields using AI').item.json.output.issue_description }}",
+              "type": "string"
+            },
+            {
+              "id": "c6667f71-5da0-47fd-b6b4-ce5f66425445",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        368
+      ],
+      "id": "ba38c9c1-b2ce-4efb-8a23-a5685f46a849",
+      "name": "Set fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10645edb-474a-457a-8a4c-4ad3b719d785",
+              "name": "operating_system",
+              "value": "={{ $('Wait for user to create account').item.json.query.operating_system }}",
+              "type": "string"
+            },
+            {
+              "id": "77a4f8df-6389-4f06-84f2-7033e7f6de9b",
+              "name": "issue_description",
+              "value": "={{ $('Wait for user to create account').item.json.query.issue_description }}",
+              "type": "string"
+            },
+            {
+              "id": "c6667f71-5da0-47fd-b6b4-ce5f66425445",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        560
+      ],
+      "id": "eb97e582-7bc6-4920-af6d-04ffd034fe05",
+      "name": "Set fields1"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "=<p>Hi {{ $('Fill in missing fields using AI').item.json.output.name }},</p>\n\n<p>Thank you for creating a ticket. Our team will get back to you shortly.</p>\n\n<p>Best,</p>\n<p>The CATS Ticket System Team</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "46f198b1-d65e-45f1-bc0a-27e32115901d",
+      "name": "Send ticket confirmation email",
+      "webhookId": "9e167612-5f7b-4085-abad-0682cf254cf8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NUW9YTaFurevAkKK",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19b06362ed606b2f",
+          "threadId": "19b06362ed606b2f",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 15212,
+          "headers": {
+            "delivered-to": "Delivered-To: samzimpfer1@gmail.com",
+            "received": "Received: from CH0PR01MB7140.prod.exchangelabs.com\r\n ([fe80::3c33:1a0b:55d4:b21b]) by CH0PR01MB7140.prod.exchangelabs.com\r\n ([fe80::3c33:1a0b:55d4:b21b%3]) with mapi id 15.20.9412.005; Wed, 10 Dec 2025\r\n 03:02:49 +0000",
+            "x-google-smtp-source": "X-Google-Smtp-Source: AGHT+IHnnEtkllpDQY7qkjm4nkB5lY4t6esBPz2tNjn0jAncN8sEVB+R7JIOlweWwy2ojc+6gqeV",
+            "x-received": "X-Received: by 2002:a05:622a:4c15:b0:4ed:aa7b:db9a with SMTP id d75a77b69052e-4f1b1b8b697mr13798311cf.79.1765335773049;\r\n        Tue, 09 Dec 2025 19:02:53 -0800 (PST)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;\r\n b=kPJDewJusDzUu1PF65y4f/TweDMOICZyZfGrdFJCHj9xBb6oMHPZF+7KmG+HnyK0q1qpgT753stjPMFcmWnDNAyA7fAK3fIoKuzsCvpaV8X1UNxXQviuM2N1JQFYcorFjavDbY40VYxhNuKu4PAUICpvgPJDKxdzhDyBdze7dQaG5wmlOo28NjIwQ6t3okNR0SXm6NNRU2bSkxHnXpikNgyCQ2JuPJApDVQnr1UHPaYXouaqgqTZ4dDBhm3NVeNDs+ndopCGz7yUxpV1KR3rbbklIxaPmPczHUVYCeGNsM0qdDz/rYdR1G3p7fRkv8wi4uXo8G5AEl5JrJEAVbRmrQ==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;\r\n s=arcselector10001;\r\n h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;\r\n bh=sx8XL5Jkq9n9c225OvlljnXXvdosNS2jE8Je7fLUlqc=;\r\n b=yHR/6XkBcLJ/jo+fon6nmzJ57Rf2rwHs1rzhW6jTYgMQ6w2uOKqWGiZWTLvwrkTumwF9sIStmhS5wzUiOCN3biBhmGmoOR09OsUot/uYecDdioOqC9Ow7mU3JRK36L+226dji72NsfjDxBJDQiBGwM9YLnKD71VaJRpuLsuSdzSy1jM5aW0+Eyklb6A0w+Mht+za55l4zWqiH1kUCRpoQePusf/1k+T1vCxPWl0lm1f43LNbQz269MUPu9vZ2u4aq0BcW0AMMXdlUHTAUTUdr0L8g1cE9glMgiOtv8IEfTigxRZoyEciHI6yE64Dot6xNOCJJmIOj2t6a5DKNjtwlA==",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass\r\n smtp.mailfrom=uvm.edu; dmarc=pass action=none header.from=uvm.edu; dkim=pass\r\n header.d=uvm.edu; arc=none",
+            "return-path": "Return-Path: <Samuel.Zimpfer@uvm.edu>",
+            "received-spf": "Received-SPF: pass (google.com: domain of samuel.zimpfer@uvm.edu designates 132.198.100.93 as permitted sender) client-ip=132.198.100.93;",
+            "authentication-results": "authentication-results: dkim=none (message not signed)\r\n header.d=none;dmarc=none action=none header.from=uvm.edu;",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n d=uvmoffice.onmicrosoft.com; s=selector2-uvmoffice-onmicrosoft-com;\r\n h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;\r\n bh=sx8XL5Jkq9n9c225OvlljnXXvdosNS2jE8Je7fLUlqc=;\r\n b=YcO/j6CET+eygmZVVV2KXfGXY4vFgmZYsJO/VCrkIQE+BpFSrhuJSgDaqGWd65J6P4LRsRC5h4OIgB2g8YqBPRbSQBNliGKfbLub9KmokaW1zM5MErORGVIo3uX32RANcDTdsS+B27wS4s9Ht/mV8o913l6htb58uIdPp3h/f6M=",
+            "from": "From: Sam Zimpfer <Samuel.Zimpfer@uvm.edu>",
+            "to": "To: Sam Zimpfer <samzimpfer1@gmail.com>",
+            "subject": "Subject: n8n test",
+            "thread-topic": "Thread-Topic: n8n test",
+            "thread-index": "Thread-Index: AQHcaYFic3pl+UcbBE6cZoHidSDzuA==",
+            "date": "Date: Wed, 10 Dec 2025 03:02:49 +0000",
+            "message-id": "Message-ID:\r\n <CH0PR01MB7140F83A03E58B9CBD739C7B9CA0A@CH0PR01MB7140.prod.exchangelabs.com>",
+            "accept-language": "Accept-Language: en-US",
+            "content-language": "Content-Language: en-US",
+            "x-ms-has-attach": "X-MS-Has-Attach:",
+            "x-ms-tnef-correlator": "X-MS-TNEF-Correlator:",
+            "msip_labels": "msip_labels:",
+            "x-ms-publictraffictype": "x-ms-publictraffictype: Email",
+            "x-ms-traffictypediagnostic": "x-ms-traffictypediagnostic: CH0PR01MB7140:EE_|DS1PR01MB8893:EE_",
+            "x-ms-office365-filtering-correlation-id": "x-ms-office365-filtering-correlation-id: 9aaf85d5-4cef-408f-4dec-08de37989a20",
+            "x-ms-exchange-senderadcheck": "x-ms-exchange-senderadcheck: 1",
+            "x-ms-exchange-antispam-relay": "x-ms-exchange-antispam-relay: 0",
+            "x-microsoft-antispam": "x-microsoft-antispam:\r\n BCL:0;ARA:13230040|1800799024|366016|376014|8096899003|38070700021;",
+            "x-microsoft-antispam-message-info": "x-microsoft-antispam-message-info:\r\n =?iso-8859-1?Q?MA7lkKb6DzqWylsM2LcO0hVAIXyq+WvI7Zws39UhRX1kZxW6HdV3jXpegg?=\r\n =?iso-8859-1?Q?dGhcdONWZxqp7GBXQilE87cKT5/1N+nmgQJDywCyXXmLaVOhQ0lhHxDnxD?=\r\n =?iso-8859-1?Q?SJwF1Lnysz4uAcDZST+veiybfCj0bE37BB7NnrSLB+9Wr0I/FwXpNVdHdQ?=\r\n =?iso-8859-1?Q?W86UXzgWVdEl1YlrZl6Kz0FGpjPmKxB3cpCYhmpKem567GP9AhUc8SKM6Y?=\r\n =?iso-8859-1?Q?VIaD2Vcg2FxjVKSO/v+dlWpYqToKMyFq7vtUkmiR+PEAueR0Fa+nTpum0n?=\r\n =?iso-8859-1?Q?zEkRy+crUhbD7zIQdr44TtBKS0reFxWonbu7yymimPAw6ALRGneAzdRiw8?=\r\n =?iso-8859-1?Q?XdPBt6xF6I9bCEw7njyGQBHwWAAEtREoFQUOwATPkUgY5g+0H5tLxej1UW?=\r\n =?iso-8859-1?Q?oKS57xeEK7Jva/zRM2aQzqe6xU7XSTrw3ypdTLdrDWx0guR6WWytljjKH3?=\r\n =?iso-8859-1?Q?tLBQpBB9GTjMtAa2or+F0cF9h5G5bkjAidYGHatidUjAYrSR1bGU+Ft4WX?=\r\n =?iso-8859-1?Q?cBmwkzuCNGW8/UHQ9kHcIJVhOk8+j1TGDUX97jVunvRXbo+yA2T4cXeb0l?=\r\n =?iso-8859-1?Q?eFFu8xdc0XikjUNQqo04R5b4tRoqcyYYNWgf6+BS2c/R8meKxI3Ix6rc7P?=\r\n =?iso-8859-1?Q?NpOmBgs0p8kggWY9eTUECZFNyqL98M47Aq/8+/WTL5A5j7uVVqZOWgsCxo?=\r\n =?iso-8859-1?Q?YCOtM4iJ18IhuKk4gE50ZPxNzx3Kd2tmI5Y0jPmkruIIE96qNIHandfqzB?=\r\n =?iso-8859-1?Q?/HMQtLpU+mhcmp+cDf8fxWvITmoFWNbLQzRd76gkeOTo5K4sNb/MOtT0zS?=\r\n =?iso-8859-1?Q?an5rV+LfXQ+jEW3YF9y7rcHFuRTHhkVRPvCsIhWj2thj4w6xPrM06LhNEA?=\r\n =?iso-8859-1?Q?Xss//DTkEEmdzYzTmHCwFCPMGFYqzXA59SgxdG6de2RyLNKUtreAVbf1SC?=\r\n =?iso-8859-1?Q?k78hrI1Myu8QfRhwPiCb+wTJhtnjzKlDkT1953fRPEurX4fZWzbqgp1MG4?=\r\n =?iso-8859-1?Q?/+gicjFG5AB7uljwAqOKA5vGjZwLKSSQ3J/oRV7vnZHkGOMPKmAVeHbJsA?=\r\n =?iso-8859-1?Q?Bc/2Ilf8MHu62xSgXHfNGj0yByeEcTycj0iN1aVCed+dEzie987kDJbdZM?=\r\n =?iso-8859-1?Q?I/HFkuFm7mOML/EnKdw90NceQnf0wL0hPv/tBsF0sZgO8eV01ArMvnEq98?=\r\n =?iso-8859-1?Q?ZQU6VQvge4pOU6Y4BcBLZHJwNzCEJtIw8lmhlpeg8qllHNp3mXRfd/KNTD?=\r\n =?iso-8859-1?Q?Zhz4VZMw8P3/KKyCxIU7dr8fA+IyUsU+rUulOOAzQObOeKxGhfb2zXbiz2?=\r\n =?iso-8859-1?Q?cwF8H4hFP/panZbe02bctcy+SmG0XJIfwNB9bKp+7pMWtW8odRWfO/j/Uh?=\r\n =?iso-8859-1?Q?5BXQHgxzOcGVFiAK6iuPm9GoaSlFcw6uHQMO0RkwgRjMKBbqvaQZftTMlf?=\r\n =?iso-8859-1?Q?H2WWtGAGUPdS2iyXOaJRQNlpTfc8OCwq63RNMyWy4tLe1TtazgTbHiVea1?=\r\n =?iso-8859-1?Q?evGy8v5CBu4ftO6amfz5dGLBv6ILfvfOlbfiYAIfH9UgoGNvf+iIkX9h80?=\r\n =?iso-8859-1?Q?4Z0wD5kXF93Q6elQDfdc26pbdPca?=",
+            "x-forefront-antispam-report": "x-forefront-antispam-report:\r\n CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR01MB7140.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(8096899003)(38070700021);DIR:OUT;SFP:1102;",
+            "x-ms-exchange-antispam-messagedata-chunkcount": "x-ms-exchange-antispam-messagedata-chunkcount: 1",
+            "x-ms-exchange-antispam-messagedata-0": "x-ms-exchange-antispam-messagedata-0:\r\n =?iso-8859-1?Q?Rk/KDbDCe7nEfK/DM7xv/sB+RRiTM0bWmLz3TW51QyDpqF8mODilPMeHBC?=\r\n =?iso-8859-1?Q?YCwfuEOkCmbEnBYRFLLaVDSgAD2D3rakKn0hS2cd7KDHTz9FcGAWKlpCVf?=\r\n =?iso-8859-1?Q?+qZT+4BtKBD/pLpKBbtZTTR8W7UHrAC8u+I/9/Y7bGzQLjP0erwSOWXmvH?=\r\n =?iso-8859-1?Q?wDxqMU77zp13KOxozgKTr2ziUUnqhhpRh4zMz7CI55BvNKHDLTD4nPyTM0?=\r\n =?iso-8859-1?Q?/DKZ4SYR0XxtN3iCipgt+D6NO5lnbN9gbBhiRcR3vxTptS+H59FI26SgRt?=\r\n =?iso-8859-1?Q?VvoZyaEE9QhbQiZIP1rV54N3/ym9b2av+oOFPxHUsUcC1meyAbJ4HZvO5S?=\r\n =?iso-8859-1?Q?9NfwqTKmXk3u1ZE/nAslFzjbfEV84ZRn97QoT5+TShgwLJaXJqZsUF8yAW?=\r\n =?iso-8859-1?Q?a8l49fctKY/RFDkCOy7uT/Yguk2q6TmsaEr8lyvDU09YXMJHwmSuR3XURo?=\r\n =?iso-8859-1?Q?kVhnzbLj68JIAre1CUodwdlNLOTXk1oqdyCQpmSYYc09pqRAYyS2D6uhEa?=\r\n =?iso-8859-1?Q?/j+xIE9INjzzcOW+b/nkRBzSwMd7j8YoF1xH7r0xkQ7HpOMLJJuF3vDGPt?=\r\n =?iso-8859-1?Q?V6BbzyztdsiJoOcuIN2ktiOl3wDiLZpludimLb7OZ4h7v5EpspogVYERhU?=\r\n =?iso-8859-1?Q?BBUpBd+bt4mJADeH4SAItIh7V0oRctNm1m6kNXwwAzD69A/WwPHFhCuevo?=\r\n =?iso-8859-1?Q?V23QwLEIUJlPjVQvpK66Zi4S1AND1xtnGGn/aG7FqIaPqsqKg2JX9i0wOL?=\r\n =?iso-8859-1?Q?Lwdf8JHqKgQcgFlSn2W4adUmyWoM4CKTNyQzcfPgXRZLZUiQ6SOuNO06Z5?=\r\n =?iso-8859-1?Q?PtEsm4w5rw1Spv6mpNk+CKEU4trmBGBx912H20WJIUbj0zaVF2z+up2hwh?=\r\n =?iso-8859-1?Q?6g8D0o7EU8Sffprnm+ny7yqsz1UFCMeH/O5qfbIYIukyBQmVdiNkCA4pOf?=\r\n =?iso-8859-1?Q?vFJTVpndszlIXJn1/oqgJdicQGohdEFmRJ/eWRpphkn1dKZLIi7Gbm12lF?=\r\n =?iso-8859-1?Q?JM2i8sdP9YlmN09J8iWAy6Qnm3anzaBPnrBL4FYon/mfxlJVNoweQfwj5z?=\r\n =?iso-8859-1?Q?I6elaXBiZK4AT4ApK0Yi4ysdM36XeN3WFFkrnkol4vOr3wkua/tPVgZ+Tc?=\r\n =?iso-8859-1?Q?cATmKB1+kCbdVxUWW/blA1StbOTgSu3xWJreyFTKYRbCdmfrh92d5VHNPw?=\r\n =?iso-8859-1?Q?UpAfr0CswuxcjDbZWCfLmKg4f7vuE5+Vgfyb0csTiVIVo1Tk0oy1Xmtz4b?=\r\n =?iso-8859-1?Q?KyG+kYau4XVBT+pCdP6twuJoNOvmp7NiyQxUrPQ7Pn8hBikkvs7RIb1b1p?=\r\n =?iso-8859-1?Q?6amHYeXfOv7Rfrpyq1sQsuEjEaMXMu4YZZEs6m8s8+m0s0Axd6c2SRO1qD?=\r\n =?iso-8859-1?Q?6hXSV2vP6g+WuzQUzwmJ48/ezKW1KzzeH6tvzYXBgxvgLBtLI/K6mJHx3F?=\r\n =?iso-8859-1?Q?IrT8d9PR+738/es2B9fWrxjQDqsvNRwOtPVnyFXgTCX6c9Bzcsdn8eMTag?=\r\n =?iso-8859-1?Q?Ng2kwYsgfoTFp50iDztBXt+Ksi1Ya388fxGrekdsP0I3F0n5wUToX6crU3?=\r\n =?iso-8859-1?Q?ZfXRSjCLO/de20hNmbQKhCTrQH0L0PDqi7+rO3R+k9S79tPS6ALr8CBMWn?=\r\n =?iso-8859-1?Q?GWsQBGQVn+dXg=3D?=",
+            "content-type": "Content-Type: multipart/alternative;\r\n\tboundary=\"_000_CH0PR01MB7140F83A03E58B9CBD739C7B9CA0ACH0PR01MB7140prod_\"",
+            "mime-version": "MIME-Version: 1.0",
+            "x-ms-exchange-antispam-externalhop-messagedata-chunkcount": "X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1",
+            "x-ms-exchange-antispam-externalhop-messagedata-0": "X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:\r\n\tHKSbSFo1gN2AQaqV706H+vMDpt8+NxfTIqGms9PZ5+doEwV0yyzdlUbImiolbDZxhOUWKCUzBBU1hdc4/vVFNk+A61irqD7txAFaSrNTnw1wm5avoGV5860HzSf8FWiv9aEgZA8OU7pBp00zuvj+jQHB9lcBz91kERoHSmEaDrMGeWoq3zIC1ahzHCyhdeK25wQcwGDwiF8HV3V9PJffk3FhdKkWbY3wRdg5kzJORgwikumSLfQohHeRG7cLlBCOK3hIsIlkLAA7LdX/Vi+IqkuCNU3swfqVc3zrqWf01ZygI/1lFc9hk07D+W4BXh3tgPssCQf6Bx9+IFsagS49mATD2JbAsecCYkRv/fNDvyHi2o/oRMLFi55qb2Vg56XDUVD2mcxqd0qXrZVi8MIYEYjkgH0y7VlkKvCwoTEVuciXS9FLS82kcsMiBchAgadxNficXcq20DeuQeQvopi1yjAnFDQ//gQAm09zrwYSQkBLIqpfinY2K4C5je4lBL2p3vK/wbI9w/kqhyX8RmaA193F1EzeRghduj2rbyJ4H9J9QkkERaOZ+YlE9W0YjCUnBUCs/9xLKY4V3/aOZ7jDW+fBAophyYobv2g8c3X5fT4=",
+            "x-originatororg": "X-OriginatorOrg: uvm.edu",
+            "x-ms-exchange-crosstenant-authas": "X-MS-Exchange-CrossTenant-AuthAs: Internal",
+            "x-ms-exchange-crosstenant-authsource": "X-MS-Exchange-CrossTenant-AuthSource: CH0PR01MB7140.prod.exchangelabs.com",
+            "x-ms-exchange-crosstenant-network-message-id": "X-MS-Exchange-CrossTenant-Network-Message-Id: 9aaf85d5-4cef-408f-4dec-08de37989a20",
+            "x-ms-exchange-crosstenant-originalarrivaltime": "X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Dec 2025 03:02:49.2966\r\n (UTC)",
+            "x-ms-exchange-crosstenant-fromentityheader": "X-MS-Exchange-CrossTenant-fromentityheader: Hosted",
+            "x-ms-exchange-crosstenant-id": "X-MS-Exchange-CrossTenant-id: 1c177758-4d6b-43dc-aaeb-3b9c42562967",
+            "x-ms-exchange-crosstenant-mailboxtype": "X-MS-Exchange-CrossTenant-mailboxtype: HOSTED",
+            "x-ms-exchange-crosstenant-userprincipalname": "X-MS-Exchange-CrossTenant-userprincipalname: Kttlr83vcAk1xE7CwcueusT3gbJtyPEO5Sy5swdj3IsXzrrXA7rdBHIfHgTFlfh/kWN2URzD8sMccpj2wWf17g==",
+            "x-ms-exchange-transport-crosstenantheadersstamped": "X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS1PR01MB8893"
+          },
+          "html": "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n<style type=\"text/css\" style=\"display:none;\"> P {margin-top:0;margin-bottom:0;} </style>\n</head>\n<body dir=\"ltr\">\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\" class=\"elementToProof\">\nName: Sam Zimpfer</div>\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\" class=\"elementToProof\">\nEmail: samuel.zimpfer@uvm.edu</div>\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\" class=\"elementToProof\">\nOperating system: macOS</div>\n<div style=\"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);\" class=\"elementToProof\">\nIssue description: shattered screen</div>\n</body>\n</html>\n",
+          "text": "Name: Sam Zimpfer\nEmail: samuel.zimpfer@uvm.edu\nOperating system: macOS\nIssue description: shattered screen\n",
+          "textAsHtml": "<p>Name: Sam Zimpfer<br/>Email: <a href=\"mailto:samuel.zimpfer@uvm.edu\">samuel.zimpfer@uvm.edu</a><br/>Operating system: macOS<br/>Issue description: shattered screen</p>",
+          "subject": "n8n test",
+          "date": "2025-12-10T03:02:49.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "samzimpfer1@gmail.com",
+                "name": "Sam Zimpfer"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Sam Zimpfer</span> &lt;<a href=\"mailto:samzimpfer1@gmail.com\" class=\"mp_address_email\">samzimpfer1@gmail.com</a>&gt;</span>",
+            "text": "\"Sam Zimpfer\" <samzimpfer1@gmail.com>"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "Samuel.Zimpfer@uvm.edu",
+                "name": "Sam Zimpfer"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Sam Zimpfer</span> &lt;<a href=\"mailto:Samuel.Zimpfer@uvm.edu\" class=\"mp_address_email\">Samuel.Zimpfer@uvm.edu</a>&gt;</span>",
+            "text": "\"Sam Zimpfer\" <Samuel.Zimpfer@uvm.edu>"
+          },
+          "messageId": "<CH0PR01MB7140F83A03E58B9CBD739C7B9CA0A@CH0PR01MB7140.prod.exchangelabs.com>"
+        }
+      }
+    ],
+    "Wait for user to create account": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv1087403.hstgr.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.7444.175 Safari/537.36",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-US,en;q=0.9",
+            "priority": "u=0, i",
+            "sec-ch-ua": "\"Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"142\", \"Chromium\";v=\"142\"",
+            "sec-ch-ua-arch": "x64",
+            "sec-ch-ua-bitness": "64",
+            "sec-ch-ua-full-version": "\"142.0.7444.175\"",
+            "sec-ch-ua-full-version-list": "\"Chrome\";v=\"142.0.7444.175\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-model": "Surface Pro",
+            "sec-ch-ua-platform": "Windows",
+            "sec-ch-ua-platform-version": "15.0.0",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "x-forwarded-for": "9.169.124.71",
+            "x-forwarded-host": "n8n.srv1087403.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "5295c550ab00",
+            "x-real-ip": "9.169.124.71"
+          },
+          "params": {},
+          "query": {
+            "email": "Samuel.Zimpfer@uvm.edu",
+            "operating_system": "macOS",
+            "issue_description": "Broken macbook"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.srv1087403.hstgr.cloud/webhook/7258e428-8e50-4111-8ab1-2edbd0148a9a",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Only respond if subject is \"n8n test\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fill in missing fields using AI": {
+      "main": [
+        [
+          {
+            "node": "Get user1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fill in missing fields using AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Fill in missing fields using AI",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user1": {
+      "main": [
+        [
+          {
+            "node": "Check if user has an account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for user to create account": {
+      "main": [
+        [
+          {
+            "node": "Get user2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if user has an account": {
+      "main": [
+        [
+          {
+            "node": "Set fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send ticket confirmation email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prompt user to create account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user2": {
+      "main": [
+        [
+          {
+            "node": "Check if user has an account 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if user has an account 2": {
+      "main": [
+        [
+          {
+            "node": "Show success page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Show error page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only respond if subject is \"n8n test\"": {
+      "main": [
+        [
+          {
+            "node": "Fill in missing fields using AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show success page": {
+      "main": [
+        [
+          {
+            "node": "Set fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ticket": {
+      "main": [
+        []
+      ]
+    },
+    "Set fields": {
+      "main": [
+        [
+          {
+            "node": "Create ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set fields1": {
+      "main": [
+        [
+          {
+            "node": "Create ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f926e364-b381-4930-a512-6b805ceaacd1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5da0f5ad4731153c715155acd66d8616a23c5c0257d047a07195ae76e9d062df"
+  },
+  "id": "wQ6o3uzE61e42xMm",
+  "tags": [
+    {
+      "updatedAt": "2025-11-28T20:38:37.485Z",
+      "createdAt": "2025-11-28T20:38:37.485Z",
+      "id": "i1FeQ7XzxG98cFDo",
+      "name": "final project"
+    }
+  ]
+}

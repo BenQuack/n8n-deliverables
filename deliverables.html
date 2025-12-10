@@ -11,7 +11,7 @@
     <div class="deliverable-block">
         <h1>Deliverable 1</h1>
         <h2>Simple automation</h2>
-        <n8n-demo src="https://n8n-service-u2ox.onrender.com/api/v1/workflows/ROsw8trqGUF81SpV"></n8n-demo>
+        <n8n-demo id="deliverable-demo1"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
@@ -37,7 +37,7 @@
     <div class="deliverable-block">
         <h1>Deliverable 2</h1>
         <h2>Simple Automation w/LLM</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <n8n-demo id="deliverable-demo2"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
@@ -61,7 +61,7 @@
     <div class="deliverable-block">
         <h1>Break time!</h1>
         <h2>Interact with simple deliverables</h2>
-        <input type="text" id="userInput" placeholder="Enter your name"/>
+        <input type="text" class="input" id="userInput" placeholder="Enter your name"/>
         
         <div class="columns">
             <div class="column" id="d1-results">
@@ -80,16 +80,40 @@
     <div class="deliverable-block">
         <h1>Deliverable 3</h1>
         <h2>Automation w/RAG</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <n8n-demo id="deliverable-demo3"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
-                <p></p>
+                <p>
+                    Retrieve and Generate (RAG) is a technique that allows LLMs to access data/databases
+                    that contain information that they would either not be well versed in or have access to.
+                    This RAG bot is setup to access the previous two deliverables and answer questions about the data
+                    that is stored in the google sheets. There are actually two workflows in this deliverable,
+                    one that will update the vector store with new data when the worksheets are changed and another
+                    that is an AI agent with access to the vector store that can answer questions about the data.
+                </p>
             </div>
             <div class="column">
                 <h3>challenges</h3>
-                <p></p>
+                <p>
+                    Honestly one of the more painles deliverables. Pinecone is super easy to setup an account with, 
+                    but I did run into some issues with mismatched embedding models and not understanding how 
+                    the dimensons of the vector store factored into data processing speed.
+                </p>
             </div>
+        </div>
+    </div>
+
+    <div class="deliverable-block">
+        <h1>Interact with RAG Bot</h1>
+        <h2>
+            This bot is hooked up to a vector store that contains all the interactions that have
+            been had with the previous two deliverables. Try asking it questions about the data.
+        </h2>
+        <input type="text" class="input" id="ragInput" placeholder="RAG Bot Input"/>
+        <button onclick="callSimpleWorkFlows('rag')">Ask RAG Bot</button>
+        <div class="column" id="rag-results">
+            <h3>Response from RAG Bot:</h3>
         </div>
     </div>
     
@@ -97,15 +121,22 @@
     <div class="deliverable-block">
         <h1>Deliverable 4</h1>
         <h2>Telegram Automation</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <n8n-demo id="deliverable-demo4"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
-                <p></p>
+                <p>https://t.me/n8n_demo_f2025_bot</p>
             </div>
             <div class="column">
                 <h3>challenges</h3>
-                <p></p>
+                <p>
+                    This was originally going to be a whatsapp bot, but when I tried to make a meta 
+                    developer account I would get to the part where they ask for a phone number to verify 
+                    and I always got an error saying to try again later. After some googling I found that 
+                    it should have been possible to add my phone number to the linked facebook account, but 
+                    that of course also did not work. So I switched to telegram which the way that API keys 
+                    are distributed was a bit strange it was simple.
+                </p> 
             </div>
         </div>
     </div>
@@ -113,16 +144,26 @@
 
     <div class="deliverable-block">
         <h1>Deliverable 5</h1>
-        <h2>Error Handling</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <h2>Webhooks and Error Handling</h2>
+        <n8n-demo id="deliverable-demo5"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
-                <p></p>
+                <p>
+                    This is how I was calling the n8n workflows throughout this demo page. It was 
+                    great learning about how webhooks work and how data is sent throughout the internet 
+                    from service to service. The error alert part of this workflow is not that complicated
+                    it triggers anytime an error in the workspace occurs and then sends me a telegram 
+                    alert with the error message and stack trace.s
+                </p>
             </div>
             <div class="column">
                 <h3>challenges</h3>
-                <p></p>
+                <p>
+                    The webhooks required a bit of learning, but no too much and once I understood them 
+                    it was super easy to send small bits of data through them. There were no challenges with
+                    setting up the error handling alert, n8n made it super simple to do so. 
+                </p>
             </div>
         </div>
     </div>
@@ -131,28 +172,130 @@
     <div class="deliverable-block">
         <h1>Deliverable 6</h1>
         <h2>MCP Integration</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <n8n-demo id="deliverable-demo6"></n8n-demo>
         <div class="columns">
             <div class="column">
                 <h3>description</h3>
-                <p></p>
+                <p>
+                    A Model Context Protocol (MCP) server is just a way to allow LLMs to access not just 
+                    external data from things like vector stores and data bases, it allows them access to
+                    API calls that can control whatever you give them access to. This is not what I see as
+                    a good use of AI and I also just do not want an LLM to be able to send emails for me, but 
+                    it is super useful as you do not need to format the system prompt to inform the LLM of
+                    what tools it has at its disposal the MCP server handles that for you.
+                </p> 
             </div>
             <div class="column">
                 <h3>challenges</h3>
-                <p></p>
+                <p>
+                    I had no challenges using this within n8n, but Sam said that he was unable to connect it 
+                    to Claude, I am not going to give an LLM that much control over my accounts so I did not 
+                    even try and setup that feature.
+                </p>
             </div>
         </div>
     </div>
     
 
     <div class="deliverable-block">
-        <h1>Deliverable 7</h1>
-        <h2>Optimization Strategies</h2>
-        <n8n-demo workflow=""></n8n-demo>
+        <h1>Business Application</h1>
+        <h2>Write Up</h2>
+        <div class="columns">
+            <div class="column">
+                <p>
+                    It is not really hard to see the business applicability of n8n workflows. 
+                    They are not too difficult to set up, run with very little maintenance, 
+                    and are capable of transferring data from api to api. The last part is 
+                    what makes n8n so useful for businesses as it does not limit you to a single 
+                    service or ecosystem the way that Microsoft or Google may try and do. I am 
+                    sure that there are many other general reasons that n8n can be utilized 
+                    effectively, but when it comes to our application of n8n, automating tech 
+                    support, it is a game changer. First it should be easy to fit into existing 
+                    IT systems with a fair bit of retooling for whatever database is being used, 
+                    secondly it will be able to reduce the amount of simple tickets that IT 
+                    departments see a lot of, and finally our workflow will be able to fact 
+                    check itself, to a degree. 
+                    <br></br>
+                    The workflow would need to be changed quite a bit depending if you were 
+                    trying to implement it into an already existing IT system, such as 
+                    footprints, but it would not require a foundational change to how it 
+                    actually works more so just a number of changes to the api calls and 
+                    the fields that are passed from node to node. For the amount of work 
+                    that this workflow is able to cut down on it would be worth it.
+                </p>
+            </div>
+            <div class="column">
+                <p>
+                    This workflow is designed to not outright replace someone working 
+                    an IT service job as I believe that fully automated customer 
+                    support is, to put it kindly, a silly idea that just makes 
+                    customers more frustrated before they are able to speak 
+                    with a human. The way that we minimize the frustration of AI 
+                    customer support is by only having the first, and most basic 
+                    troubleshooting steps be automated and by checking the 
+                    response for reliability. These cut down on the frustrations 
+                    that I have with automated customer support systems which is 
+                    a lack of connection and questionable information.
+                    <br></br>
+                    With the two factors I have fully described and the third that 
+                    I touched on it is not hard to see that this workflow will be 
+                    simple to implement, bring minimal disruption to already 
+                    existing employee workflows, and give human support more 
+                    time to assist with more complex, and involved tickets.
+                </p>
+            </div>
+        </div>
     </div>
 
+    <div class="deliverable-block">
+        <h1>Security Analysis</h1>
+        <h2>Write Up</h2>
+        <div class="columns">
+            <div class="column">
+                <p>
+                    For security most of how our application is 
+                    set up raises no concerns as the account creation 
+                    and authorization is handled by Supabase which 
+                    is secure, and to access the actual workflows a 
+                    person needs to sign into Sam’s Hostinger account
+                    and then on the n8n instance that is hosted on 
+                    that account they need to sign into Sam’s n8n 
+                    account. This does not mean that there aren’t any 
+                    concerns, there are concerns about the data that 
+                    is collected and processed by the AI agents as 
+                    well as licensing the workflow. The data that the 
+                    AI can collect from our main application is limited 
+                    as it is only able to see the first message and 
+                    (fully anecdotal) as a general rule IT clients 
+                    take a few more messages than that to accidentally 
+                    provide sensitive information, but there are exceptions 
+                    when the end user does not know that what they 
+                    are giving is sensitive information, like a 95 
+                    number here at UVM. To keep this from happening 
+                    we could simply reroute any data that contains 
+                    something that seems to be sensitive (95#, SSN, etc.) 
+                    around the AI agents. 
+                    <br></br>
+                    As for licensing issues it’s a bit simpler if UVM 
+                    or more specifically ETS asked us to help them to 
+                    implement this workflow into footprints that would 
+                    be no issue under n8n’s sustainable use license, but 
+                    if we made this workflow and asked ETS if they would 
+                    buy it off of us for x amount then that would be 
+                    explicitly against the n8n license. 
+
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => { 
+            loadDeliverables();
+        };
+    </script>
+
     <script src="scripts.js"></script>
-    
 
     <!-- Required scripts (load at end of body) -->
     <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.0.0/webcomponents-loader.js"></script>

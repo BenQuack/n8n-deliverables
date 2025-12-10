@@ -1,0 +1,274 @@
+{
+  "name": "MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "5d0b89cf-13ea-407f-8f7f-c2a3ebd6268a"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7116148a-4834-43ec-b217-5d94d1bf5b3a",
+      "name": "MCP Server Trigger",
+      "webhookId": "5d0b89cf-13ea-407f-8f7f-c2a3ebd6268a"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw",
+          "mode": "list",
+          "cachedResultName": "simple workflow sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z70McJQJKhlR-Ngy5GLeLDxrebHW3nTldtONUhj64cw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -208,
+        256
+      ],
+      "id": "d996b062-93d3-43ed-9896-0d45fbfae94a",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5aToUTpLfMXtlgQ0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MrbvUyZyt82aTwmBO2rzSRK3N85-qLpLMUMDN_Fqq8M",
+          "mode": "list",
+          "cachedResultName": "simple workflow w/llm",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MrbvUyZyt82aTwmBO2rzSRK3N85-qLpLMUMDN_Fqq8M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MrbvUyZyt82aTwmBO2rzSRK3N85-qLpLMUMDN_Fqq8M/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        288
+      ],
+      "id": "5b66e818-f0e8-4329-9bc6-8fce1919870e",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5aToUTpLfMXtlgQ0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        336,
+        272
+      ],
+      "id": "d1d9100e-5cb1-48c7-b985-1e7cb398b7cb",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "ixXrShG7lLpVDxY0",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "BenQuack",
+          "mode": "list",
+          "cachedResultName": "BenQuack",
+          "cachedResultUrl": "https://github.com/BenQuack"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "backup",
+          "mode": "list",
+          "cachedResultName": "backup",
+          "cachedResultUrl": "https://github.com/BenQuack/backup"
+        },
+        "filePath": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_Path', ``, 'string') }}",
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.githubTool",
+      "typeVersion": 1.1,
+      "position": [
+        48,
+        320
+      ],
+      "id": "5f149d0e-7897-43a0-9d1f-50744897cee1",
+      "name": "Get a file in GitHub",
+      "webhookId": "1a485892-5d66-4f69-9e21-58c5e8da32d9",
+      "credentials": {
+        "githubApi": {
+          "id": "2pH8CkqSO0T2roFT",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1TgRGzpPxNN9TzDY7x4pEZkewEBr_FmnA",
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        464,
+        208
+      ],
+      "id": "cf39d304-54cf-4af5-bcd7-c96133e6a528",
+      "name": "Create a document in Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "IOONs3SyY1RKRhtf",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Input_Data_Field_Name', ``, 'string') }}",
+        "name": "AI uploaded file",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1TgRGzpPxNN9TzDY7x4pEZkewEBr_FmnA",
+          "mode": "list",
+          "cachedResultName": "n8n testing",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1TgRGzpPxNN9TzDY7x4pEZkewEBr_FmnA"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        240,
+        320
+      ],
+      "id": "b1aa035a-e52f-46ea-85e0-351d2af257fc",
+      "name": "Upload file in Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "meqsGg2fP1KygRQu",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file in GitHub": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document in Google Docs": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file in Google Drive": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "66ec9c91-dba9-4992-835a-c80a092eb9e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3f4a30f2c479452b871c2da23212f6296d0d351a72c3635bf381e1e4a7451bd"
+  },
+  "id": "5HjLWVfs64pAeZQC",
+  "tags": []
+}

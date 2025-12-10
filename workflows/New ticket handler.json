@@ -1,0 +1,1159 @@
+{
+  "name": "New ticket handler",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Issue description: {{ $json.issue_description }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Instructions\nYou are a helpful assistant who gives a proposed solution to a tech support ticket. You are trying only to give the most basic first steps in the troubleshooting process. You are given a description of their issue. You may use both your own pretrained knowledge, a vector store Q/A tool called UVM_knowledge_base, and wikipedia to help answer. You do not need to reference any of the given tools. Along with the solution, give the context obtained from the vector store (if used) and give an estimated confidence level as a float between 0 and 1.\n\n# Output\nOutput a single JSON object containing the three fields (solution, context, and confidence_level). Do not add any additional text. \n\n# Additional instructions\n1. If it seems to be a web issue always recommend clearing cache first\n  1.a. Most web issues will invlove things such as myUVM, brightspace, or other web based applicaitons \n\n2. Do not recommend checking domain if not a sign in issue on the device\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        160
+      ],
+      "id": "b3bf87b3-2918-4cf4-af8f-1710b44e923c",
+      "name": "Attempt to resolve issue using AI"
+    },
+    {
+      "parameters": {
+        "description": "Gives answers related to common issues"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        1648,
+        416
+      ],
+      "id": "c3a3cd0c-598c-4148-bf0d-f82061831312",
+      "name": "UVM_knowledge_base"
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "uvm_kb_embeddings_updated",
+          "mode": "list",
+          "cachedResultName": "uvm_kb_embeddings_updated"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1552,
+        544
+      ],
+      "id": "f31f90f0-9070-4e9d-8cdd-6bd9f1b8490b",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        672
+      ],
+      "id": "12f22f7a-0c09-4921-a65b-e4b800599ecb",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "OM0xnuhaA6ck7hC3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1536,
+        -176
+      ],
+      "id": "4aeeb0ac-4951-421a-8419-156d5e6cb019",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OM0xnuhaA6ck7hC3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1168,
+        368
+      ],
+      "id": "300412a0-0a7b-4b7f-865c-86fa2376dda5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "OM0xnuhaA6ck7hC3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1856,
+        576
+      ],
+      "id": "3e012af4-54a4-4b65-9bfe-c41e5758d876",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "OM0xnuhaA6ck7hC3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "samzimpfer1@gmail.com",
+        "subject": "=Urgent Ticket: Ticket #{{ $('Set fields to be stored in database').item.json.ticketID }}",
+        "emailType": "text",
+        "message": "=Ticket #: {{ $('Set fields to be stored in database').item.json.ticketID }}\nUser: {{ $('Set fields to be stored in database').item.json.name }}\nUser email: {{ $('Set fields to be stored in database').item.json.email }}\nCategory: {{ $('Set fields to be stored in database').item.json.category }}\nOperating system: {{ $('Set fields to be stored in database').item.json.operating_system }}\nIssue description: {{ $('Set fields to be stored in database').item.json.issue_description }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2896,
+        64
+      ],
+      "id": "bf0598a1-0baa-4fa3-9339-088e1591c203",
+      "name": "Notify technicians",
+      "webhookId": "0188be6b-5dc7-44b0-9064-9b55247059d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NUW9YTaFurevAkKK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User: {{ $json.email }}\nOperating system: {{ $json.operating_system }}\nIssue description: {{ $json.issue_description }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Context\nYou are a helpful assistant who deals with tech support tickets from users. Your job is to classify the urgency, category, and department of the issue according to the following intructions.\n\n# Inputs\nYou are given the user's email, operating system, and issue description.\n\n# Tools\nYou have a vector store Q/A tool called UVM_knowledge_base which you may use to help determine values for each variable.\n\n# Determining Urgency\nDetermine urgency based on context from the issue description. If it is a critical issue, output URGENT, otherwise, output \"NOT URGENT\"\n\n# Determining Category\nDetermine category based on context from the issue description. Choose the best fit from the following categories:\n  - Account management\n  - System admin and architecture\n  - Classroom tech services\n  - General\nIf unsure, choose General.\n\n# Determining Department\nRefer to the examples given below\n\n#Examples for Account management\nNetID Issues:\n\nAccount shows \"Manually Locked\" in Account Lookup\nClient cannot self-reset password (missing phone number or insufficient directory information)\nDepartmental account password reset needed\nNew departmental account creation (clients should use https://go.uvm.edu/deptnetidrequest)\n\nDuo Authentication:\n\nClient needs to add new phone number to Duo\nDuo issues that persist after removing and re-adding account\nManual or automatic account lockout\n\nEncryption:\n\nBitLocker recovery keys for UVM machines (note: bitlocker.uvm.edu/SelfService/Recovery/Index currently incompatible with Intune)\nmacOS encryption recovery keys for UVM machines\n\nAccount & Access Management:\n\nLISTSERV list ownership determination or transfer\nDepartmental account ownership transfer or addition\nMailbox permission adjustments and shared mailbox creation\nVPN access requests or group changes between sslvpn and sslvpn2 (clients can also use go.uvm.edu/vpnrequest)\nMain campus Shared Drive folder access (only for clients not supported by hub)\n.tech or .adm password resets\n\n#Examples for System admin and architecture\nMyDocs to OneDrive migration issues\nMicrosoft application add-on integration requests\nMicrosoft licensing requests/issues (PowerBI, MS Project, Copilot, Visio, Office A3 upgrades - use https://go.uvm.edu/m365licenserequest)\nAdmin-level Outlook issues (verify outlook.office.com works first): department/resource/leave calendars, Exchange mailbox forwarding toggle, published calendar date range adjustments, calendar room resource creation\nQualtrics (try hubs first): survey ownership changes (include project names and new owner), missing features, email send limit expansion\nSharePoint external sharing requests (sharepoint.uvm.edu = On Prem, uvmoffice.sharepoint.com = Online) - form at https://www.uvm.edu/it/kb/external-sharepoint-sharing-request/ creates ticket needing escalation\nBookings: shared page deletion\nTeams: ownership or channel changes\nLab-wide program updates (try hub or TTMGMT first)\nVirtual desktop program issues (try hub or TTMGMT first)\nWindows 10 to 11 upgrades when Windows Update unavailable and Installation Assistant fails (collect device name first)\nUVM Blog/WordPress issues\nFileTransfer or ZooFiles issues\nNew shared file directory creation\nLISTSERV server-side issues\nGo link ownership transfers or freeing up requests\nTop-level redirect requests\nLimeSurvey data recovery requests\nTMS server issues\nShared Drive data/architecture problems\nHosted VM issues\nPrivileged account password changes (.saa, .hsa, .dom, -cont accounts) - exclude .tech or .adm\n\n#Examples for classroom tech services\nAnything that mentions a classroom technology issue\n\n# Output\nOutput a single JSON object containing the fields (urgency, category, department) and their values. Do not add any additional text. \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1552,
+        -336
+      ],
+      "id": "6cdc2aef-573f-4044-8749-265282ac3c19",
+      "name": "Classify urgency/category/department using AI"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"urgency\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"category\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n        \"department\": {\n            \"type\": \"string\"\n        }\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        -192
+      ],
+      "id": "5a8dddcc-a3f0-47a9-b9b6-11de464ffd02",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"solution\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n        \"context\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n        \"confidence_level\": {\n\t\t\t\"type\": \"float\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        368
+      ],
+      "id": "450a53b5-238c-4561-ae6e-f29a714d1501",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2672,
+        -96
+      ],
+      "id": "e7681357-5dc4-4acd-ba4b-f2cb2a3b43bb",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "tickets",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.ticketID }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "urgency",
+              "fieldValue": "={{ $json.urgency }}"
+            },
+            {
+              "fieldId": "category",
+              "fieldValue": "={{ $json.category }}"
+            },
+            {
+              "fieldId": "department",
+              "fieldValue": "={{ $json.department }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        -80
+      ],
+      "id": "d6ded287-ca56-4064-8292-a46ef5282198",
+      "name": "Store ticket in supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5cae7aae-7fa3-4551-bc0d-e6b5c590eb15",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "9758f2a0-f97a-4170-a29a-32ce5a42f88a",
+      "name": "Webhook",
+      "webhookId": "5cae7aae-7fa3-4551-bc0d-e6b5c590eb15"
+    },
+    {
+      "parameters": {
+        "content": "Urgency/category/department classifier is very basic right now. The agent is given the user's email, the operating system, and the issue description, and analyzes them to come up with categories with no further instruction",
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -512
+      ],
+      "id": "da9cd36c-d62b-46ed-8e0f-63842f935447",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "The AI solution node uses both the vector store and its own pretrained knowledge to come up with a solution and its own confidence level",
+        "height": 128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        928,
+        208
+      ],
+      "id": "84403780-3ed0-4536-a0c3-8f4b5dcc362e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea8fdab5-36d4-4341-895f-93527c5e71ef",
+              "name": "name",
+              "value": "={{ $json.name ?? $json.output?.name }}",
+              "type": "string"
+            },
+            {
+              "id": "39fa6295-d29f-416d-8c18-7c163d319105",
+              "name": "email",
+              "value": "={{ $json.email ?? $json.output?.email }}",
+              "type": "string"
+            },
+            {
+              "id": "f4e17a7e-740d-49fe-8309-c7a42c1b2aaf",
+              "name": "operating_system",
+              "value": "={{ $json.body?.record?.operating_system ?? $json.output?.operating_system }}",
+              "type": "string"
+            },
+            {
+              "id": "67704369-c8bd-487a-b6f3-b8389fc0b93c",
+              "name": "issue_description",
+              "value": "={{ $json.body?.record?.issue_description ?? $json.output?.issue_description }}",
+              "type": "string"
+            },
+            {
+              "id": "15b044c8-4b49-46fc-b2ff-d4a3d57e89d7",
+              "name": "userID",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "086e943e-568f-4f32-8763-7bbab44e0c11",
+              "name": "ticketID",
+              "value": "={{ $json.body.record.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -80
+      ],
+      "id": "a96b06cb-5a3f-4dc3-bd49-8b49363aacd9",
+      "name": "Set user input fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "628bbed8-a1b2-4605-9cc3-5f5e90b0b9aa",
+              "name": "ticketID",
+              "value": "={{ $json.ticketID }}",
+              "type": "string"
+            },
+            {
+              "id": "38cef466-6d5e-4961-8d99-8d983c838ee0",
+              "name": "userID",
+              "value": "={{ $json.userID }}",
+              "type": "string"
+            },
+            {
+              "id": "7bc98dc0-d3f1-4240-b9c3-ac6a38884eaf",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "b01a9b23-4bbb-4c48-96dc-2744c07fcb6c",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "d6e7cbe2-8654-4dfa-9083-53657064c7f4",
+              "name": "operating_system",
+              "value": "={{ $json.operating_system }}",
+              "type": "string"
+            },
+            {
+              "id": "0c1c71c4-500d-4e15-b763-9908ae7d0f18",
+              "name": "issue_description",
+              "value": "={{ $json.issue_description }}",
+              "type": "string"
+            },
+            {
+              "id": "f822f74c-b1a9-4f1c-a99a-2531e2e8da37",
+              "name": "urgency",
+              "value": "={{ $json.output.urgency }}",
+              "type": "string"
+            },
+            {
+              "id": "18ce7fa6-c529-4ef6-b883-0cacd608d420",
+              "name": "category",
+              "value": "={{ $json.output.category }}",
+              "type": "string"
+            },
+            {
+              "id": "6b6cf33b-e4d1-4f7f-a333-fd7ef82a13fb",
+              "name": "department",
+              "value": "={{ $json.output.department }}",
+              "type": "string"
+            },
+            {
+              "id": "21c371ab-5e9d-4d71-b7cc-6efe83178a55",
+              "name": "AI_solution",
+              "value": "={{ $json.solution }}",
+              "type": "string"
+            },
+            {
+              "id": "3d44777a-42d8-44bc-a90f-7d669dd0924c",
+              "name": "AI_confidence_level",
+              "value": "={{ $json.tlm_metadata.trustworthiness_score }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2832,
+        -80
+      ],
+      "id": "29d0d86b-c24c-43c4-98ae-b069e6eb791b",
+      "name": "Set fields to be stored in database"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.body.record.userid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -144
+      ],
+      "id": "61687417-8efa-40f7-9034-2a65455c0429",
+      "name": "Get user",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        336,
+        -64
+      ],
+      "id": "f97e5411-2738-40d1-bd75-640a1103dd32",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e9e6d070-4971-4555-b304-b0368effd0ba",
+              "leftValue": "={{ $json.urgency }}",
+              "rightValue": "URGENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        64
+      ],
+      "id": "3c7cb4fc-a12e-4eae-b448-6b0316108566",
+      "name": "If ticket is urgent"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1632,
+        16
+      ],
+      "id": "2466a743-4861-4b0e-bf40-1bcb8c33939d",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cleanlab.ai/api/v1/openai_trustworthy_llm/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4.1-mini\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.messages[0].content }}\"\n    }\n  ]\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1888,
+        16
+      ],
+      "id": "184cba39-4c08-411c-af85-daf31fef2e8d",
+      "name": "TLM check",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "LPXIfJ3xfCm9ClFP",
+          "name": "TLM Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Vector store of the UVM knowledge base\n",
+        "height": 432,
+        "width": 512,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        352
+      ],
+      "id": "2ef3a811-47ef-4577-a519-5816478e49db",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "23591df2-e376-4a87-9571-ae53f5bc74c9",
+              "leftValue": "={{ $json.AI_confidence_level }}",
+              "rightValue": 0.9,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        -208
+      ],
+      "id": "12812891-d8ad-4502-b249-0f26380b2a25",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## Check response for correctness",
+        "height": 192,
+        "width": 448,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -32
+      ],
+      "id": "c6070c93-740f-4097-87b1-ff8f83864903",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## DB operations and AI response control\n",
+        "height": 448,
+        "width": 848,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -256
+      ],
+      "id": "acba7c99-471a-40d2-b51f-dc74f4480bf5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "tableId": "ticket_messages",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ticket_id",
+              "fieldValue": "={{ $json.ticketID }}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.userID }}"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $json.AI_solution }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3296,
+        -224
+      ],
+      "id": "53dc6cff-f107-45cf-8f32-0e979070e41b",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "A0VrnbNovTXpp0AY",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function to remove special characters and clean text\nfunction cleanText(text) {\n  if (!text) return '';\n  \n  return String(text)\n    // Remove or replace problematic characters\n    .replace(/[\\x00-\\x1F\\x7F-\\x9F]/g, '') // Remove control characters\n    .replace(/[\"\"]/g, '\"') // Replace smart quotes with regular quotes\n    .replace(/['']/g, \"'\") // Replace smart apostrophes\n    .replace(/[…]/g, '...') // Replace ellipsis\n    .replace(/[\\r\\n]+/g, ' ') // Replace newlines with spaces\n    .replace(/\\t/g, ' ') // Replace tabs with spaces\n    .replace(/\\\\/g, '\\\\\\\\') // Escape backslashes\n    .replace(/\"/g, '\\\\\"') // Escape quotes\n    .replace(/\\s+/g, ' ') // Collapse multiple spaces\n    .trim();\n}\n\n// Build the JSON object\nreturn {\n  model: \"gpt-4.1-mini\",\n  messages: [\n    {\n      role: \"user\",\n      content: `Input: ${cleanText($input.first().json.issue_description)} Output: Given solution: ${cleanText($input.first().json.output.solution)} | Given context: ${cleanText($input.first().json.output.context)}`\n    }\n  ]\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        16
+      ],
+      "id": "88f7d30b-ed74-4546-a97f-1707a1d969ab",
+      "name": "Format for TLM"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2400,
+        144
+      ],
+      "id": "f7895b9e-eaa1-4395-9d7e-022830cc491e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  \"solution\": $input.first().json.output.solution + \"\\n\\nThis response was generated by AI any future messages will be handled by one of our human support staff. The solution(s) provided may or may not work\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        160
+      ],
+      "id": "2d5ecff0-53b6-43f6-bf53-8e1f2e7270b7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d6c0f47-c6c0-40c7-97a6-25160556f09e",
+              "leftValue": "={{ $json.body.record.telegram }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        -64
+      ],
+      "id": "6ca6d330-3b42-4046-af32-933d86ff4dd5",
+      "name": "Telegram filter"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "id": "e3ce8825-195d-4f12-bbef-bae481674942",
+          "email": "bquacken@uvm.edu",
+          "name": "Ben",
+          "role": "user",
+          "department": "student",
+          "created_at": "2025-12-02T19:59:33.195485+00:00",
+          "updated_at": "2025-12-08T03:07:12.33945+00:00",
+          "telegram_msg_id": 6718644308,
+          "headers": {
+            "host": "n8n.srv1087403.hstgr.cloud",
+            "user-agent": "pg_net/0.19.5",
+            "content-length": "342",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.srv1087403.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "5295c550ab00",
+            "x-real-ip": "172.18.0.1",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "INSERT",
+            "table": "tickets",
+            "record": {
+              "id": 6718644308,
+              "userid": "e3ce8825-195d-4f12-bbef-bae481674942",
+              "urgency": null,
+              "category": null,
+              "telegram": true,
+              "created_at": "2025-12-08T03:07:12.384+00:00",
+              "department": null,
+              "operating_system": null,
+              "issue_description": "Telegram chat"
+            },
+            "schema": "public",
+            "old_record": null
+          },
+          "webhookUrl": "https://n8n.srv1087403.hstgr.cloud/webhook/5cae7aae-7fa3-4551-bc0d-e6b5c590eb15",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "UVM_knowledge_base": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify urgency/category/department using AI",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Attempt to resolve issue using AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "UVM_knowledge_base",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify urgency/category/department using AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Attempt to resolve issue using AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "UVM_knowledge_base",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attempt to resolve issue using AI": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify technicians": {
+      "main": [
+        []
+      ]
+    },
+    "Classify urgency/category/department using AI": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify urgency/category/department using AI",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Attempt to resolve issue using AI",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Set fields to be stored in database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Get user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set user input fields": {
+      "main": [
+        [
+          {
+            "node": "Attempt to resolve issue using AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Classify urgency/category/department using AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set fields to be stored in database": {
+      "main": [
+        [
+          {
+            "node": "Store ticket in supabase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If ticket is urgent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Telegram filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If ticket is urgent": {
+      "main": [
+        []
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Format for TLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TLM check": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for TLM": {
+      "main": [
+        [
+          {
+            "node": "TLM check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Telegram filter": {
+      "main": [
+        [
+          {
+            "node": "Set user input fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b9d780a8-c908-489e-ac1f-6929c8b97a35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5da0f5ad4731153c715155acd66d8616a23c5c0257d047a07195ae76e9d062df"
+  },
+  "id": "xnGcXSi0qRl9gpbU",
+  "tags": [
+    {
+      "updatedAt": "2025-11-28T20:38:37.485Z",
+      "createdAt": "2025-11-28T20:38:37.485Z",
+      "id": "i1FeQ7XzxG98cFDo",
+      "name": "final project"
+    }
+  ]
+}
